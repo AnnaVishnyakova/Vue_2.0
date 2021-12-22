@@ -52,7 +52,7 @@
 
 <script>
 export default {
-  name: 'Home',
+  name: 'Calc',
   components: {
     // HelloWorld
   },
