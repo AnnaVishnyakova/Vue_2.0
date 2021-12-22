@@ -1,7 +1,7 @@
 <template>
   <button :class="$style.content__btn" type="button" @click="$emit('click')">
     <div :class="$style.content__btn_text">
-      Add new cost +
+     Добавить новый расход
     </div>
   </button>
 </template>

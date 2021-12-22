@@ -7,7 +7,7 @@
       v-model.number="value" />
       <input :class="$style.content__input" type="date"
       v-model="date" />
-      <button type="submit" :class="$style.content__btn" @click.prevent="addPayment">Add +
+      <button type="submit" :class="$style.content__btn" @click.prevent="addPayment">Добавить
       </button>
     </form>
 <!-- 
