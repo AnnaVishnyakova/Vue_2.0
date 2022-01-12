@@ -8,19 +8,7 @@
     <router-view/>
    
   </div>
-<!-- 
-    <AddPaymentForm @add-payment="addNewPayment"/>
-    <PaymentsDisplay :items="paymentList" /> -->
-    
-    <!-- <Counter v-if="show"/>
-    <button @click="show=!show">
-      show/ hide
-    </button> -->
-    <!-- <div id="nav">
-      <router-link to="/">Калькулятор</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>
-    <router-view/> -->
+
   
 </template>
 <style lang="scss">

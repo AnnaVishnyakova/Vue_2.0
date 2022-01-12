@@ -1,73 +1,97 @@
 <template>
-<div>
-    <form :class="$style.content__form">
-      <input :class="$style.content__input" type="text" :placeholder="inputCategory"
-      v-model.trim="category" />
-      <input :class="$style.content__input" type="number" :placeholder="inputValue"
-      v-model.number="value" />
-      <input :class="$style.content__input" type="date"
-      v-model="date" />
-      <button type="submit" :class="$style.content__btn" @click.prevent="addPayment">Добавить
-      </button>
+  <div :class="$style.wrap">
+  <form :class="$style.content__form">
+      <input type="date" placeholder="Date" v-model="date" :class="$style.content__input">
+        <select name="" id=""
+        v-model="category"
+        :class="$style.content__input"
+        >
+        <option value=''
+        disabled selected>
+        {{categoryPlaceholder}}</option>
+          <option
+          v-for="category of categoryList"
+          :key="category"
+          :value="category"
+          >{{category}}</option>
+        </select>
+        <addCategoryForm />
+      <input type="number"
+      :placeholder="valuePlaceholder"
+      v-model="value"
+      :class="$style.content__input">
+      <button
+      @click.prevent="addPayment"
+      :class="$style.content__btn"
+      >Add  +</button>
     </form>
-<!-- 
-    <input type="date" placeholder="Date" v-model="date">
-    <input type="text" placeholder="category" v-model="category">
-    <input type="text" placeholder="Value" v-model="value">
-    <button @click="addPayment">
-      Add
-    </button> -->
   </div>
 </template>
-button
 
 <script>
+import { mapActions, mapGetters, mapMutations } from 'vuex';
+import addCategoryForm from './addCategoryForm.vue';
+
 export default {
-  name:'AddPaymentForm',
-  data(){
-      return {
-          inputCategory:'Введите категорию',
-          inputValue:'Введите сумму',
-          value:"",
-          category:"",
-          date:""
-
-      }
+  name: 'AddPaymentForm',
+  components: {
+    addCategoryForm,
   },
-  computed:{
-      paymentDate(){
-          const currentDate = new Date();
-          const day =currentDate.getDate();
-          const month =currentDate.getMonth()+1;
-          const year =currentDate.getFullYear();
-
-          return `${day}.${month}.${year}`
-      },
+  data() {
+    return {
+      value: '',
+      category: '',
+      date: '',
+      categoryPlaceholder: 'please select',
+      valuePlaceholder: 'Value',
+      showAddCategoryForm: false,
+      newCategory: '',
+    };
   },
-  methods:{
-    addPayment(){
-      const {value,category,date} =this;
-      const data ={
-        
-          date: date|| this.paymentDate, //если нет даты то ставим нынешнюю дату
-          category,
-          value: +value, //превращаем в число
-      
+  methods: {
+    ...mapActions(['fetchCategoryListData']),
+    ...mapMutations({ addCategory: 'addCategoryList' }),
+    addPayment() {
+      const {
+        id, date, category, value,
+      } = this;
+      const data = {
+        date: date || this.currentDate, id: +id, category, value: +value,
       };
       if (data.category !== '' && data.value !== 0) {
-      this.$emit('add-payment', data);
-      } else{
-          this.inputCategory = 'Введите обязательно категорию !';
-          this.inputValue = 'Обязательно введите сумму !';
+        // eslint-disable-next-line no-plusplus
+        // data.id = (Math.floor(Math.random() * 9999) + 1);
+        data.id = this.paymentsCount;
+        this.$emit('add-payment', data);
       }
-    }
-
+      this.categoryPlaceholder = 'Enter category !!!';
+      this.valuePlaceholder = 'Enter value !!!';
+    },
+    addNewCategory() {
+      if (this.newCategory) {
+        this.addCategory(this.newCategory);
+      }
+      this.showAddCategoryForm = !this.showAddCategoryForm;
+    },
   },
-}
+  computed: {
+    ...mapGetters(['categoryList', 'paymentsCount']),
+    currentDate() {
+      const d = new Date();
+      const year = d.getFullYear();
+      const month = d.getMonth() + 1;
+      let day = d.getDate();
+      if (day < 10) {
+        day = `0${day}`;
+      }
+      const date = `${day}.${month}.${year}`;
+      return date;
+    },
+  },
+};
 </script>
 
-
-<style module lang="scss">
+<style module lang="scss" scoped>
 .content {
 &__form {
   display: flex;
@@ -85,7 +109,7 @@ export default {
 }
 &__btn {
   align-self: flex-end;
-  width: 6em;
+  width: 25%;
   display: flex;
   justify-content: center;
   padding: 0.8em 1em;

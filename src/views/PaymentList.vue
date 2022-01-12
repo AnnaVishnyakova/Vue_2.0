@@ -1,69 +1,99 @@
 <template>
-   <div class="payments">
-      <div class="content container">
-        <h1 class="content__title">Фиксация расходов</h1>
-        <main class="content__main">
-          <CustomButton @click="showForm=!showForm" add/>
-          <AddPaymentForm @add-payment="addNewPayment" v-if="showForm"/>
-          <PaymentsDisplay :items="paymentsList"/>
-          <!-- <Pagination :length="pageLength" @select-page="selectPage" /> -->
-        </main>
-      </div>
-   </div>
+  <div id="app" class="wrapper content container" >
+    <h1 class="content__title">My personal costs</h1>
+<main class="content__main">
+    <CustomButton class="showbtn" @click="show=!show"> Add new costs  + </CustomButton>
+    <AddPaymentForm
+    @add-payment="addNewPayment"
+    v-if="show"
+    :categoryList="categoryList"
+    />
+    <PaymentsDisplay :items="showPayments"/>
+    <Pagination @select-page="changePage" />
+  </main>
+  </div>
 </template>
+
 <script>
-
-// import Counter from "./components/Counter.vue"
+import { mapActions, mapGetters, mapMutations } from 'vuex';
+import PaymentsDisplay from '../components/PaymentsDisplay.vue';
+import AddPaymentForm from '../components/AddPaymentForm.vue';
 import CustomButton from '../components/CustomButton.vue';
-import PaymentsDisplay from "../components/PaymentsDisplay.vue";
-import AddPaymentForm from "../components/AddPaymentForm.vue";
+import Pagination from '../components/Pagination.vue';
+
 export default {
-  name:'Payments',
-  components:{
+  name: 'Dashboard',
+  components: {
+    PaymentsDisplay,
+    AddPaymentForm,
     CustomButton,
-     PaymentsDisplay,
-     AddPaymentForm
+    Pagination,
   },
-
-   data(){
-    return{
-      showForm: false,
-      paymentsList:[],
-       
-    }
+  data() {
+    return {
+      show: false,
+      currentPage: 1,
+     
+    };
   },
-  methods:{
-    fetchData(){
-      return [
-        {
-          date:'24.03.2020',
-          category:'Food',
-          value:444
-        },
-        {
-          date:'28.03.2020',
-          category:'Transport',
-          value:444
-        },
-        {
-          date:'21.03.2020',
-          category:'Sport',
-          value:444
-        },
-        
-
-      ];
+  methods: {
+    ...mapActions([
+      'fetchData',
+      'fetchCategoryListData',
+      'fetchPages',
+    ]),
+    onPageChange(page) {
+      this.currentPage = page;
     },
-    addNewPayment(payment){
-     this.paymentsList.push(payment)
-  
+    changePage(newPage) {
+      
+      ((this.currentPage = newPage), this.fetchData(this.currentPage));
     },
+    ...mapMutations({ addPayment: 'ADD_PAYMENT_DATA' }),
     
+    addNewPayment(payment) {
+      // eslint-disable-next-line eqeqeq
+      if (payment.category != '' && payment.value != '') {
+        this.addPayment(payment);
+        this.fetchPages();
+      }
+    },
+  },
+  computed: {
+    ...mapGetters([
+      'paymentsList',
+      'categoryList',
+    ]),
+    showPayments() {
+      return this.paymentsList[`page${this.currentPage}`];
+    },
+    getRoute() {
+      return this.$route.params;
+    },
+  },
+  created() {
+   
+    this.fetchPages();
+    this.fetchData(this.currentPage);
+    this.fetchCategoryListData();
   },
 
-  created(){
-    this.paymentsList= this.fetchData();
-    // console.log(this.paymentList);
-  }
-}
+};
 </script>
+
+<style lang="scss">
+.container {
+  max-width: 1140px;
+  margin: auto;
+}
+.content {
+  &__main {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  &__title {
+      margin: 30px auto;
+      text-align: center;
+    }
+}
+</style>
